@@ -4,9 +4,9 @@ clc;
 % loading and random sorting of the data
 we = load('dane_sin1a_i.txt');
 wy = load('dane_sin1a_o.txt'); 
-sort = randperm(length(wy));
-we = we(sort,:)';
-wy = wy(sort)';
+mix = randperm(length(wy));
+we = we(mix,:)';
+wy = wy(mix)';
 
 % dividing the data to the learning and test data
 in_learn = [];
@@ -26,18 +26,28 @@ for i = 1:length(wy)
 end
 
 % learning and testing the net
-err = [];
-spread = logspace(-2, 2, 100)';
-for n = 1:length(spread)
-    net = newgrnn(in_learn, out_learn, spread(n));
-    y = sim(net, in_test);
-    d = sum((out_test - y).^2);
-    err = [err d];
+results = [];
+all_err = [];
+for i = 1:100
+    err = [];
+    spread = logspace(-2, 2, 100)';
+    for n = 1:length(spread)
+        net = newgrnn(in_learn, out_learn, spread(n));
+        y = sim(net, in_test);
+        d = sum((out_test - y).^2);
+        err = [err d];
+    end
+    % finding the best spread
+    [min_d, spread_ind] = min(err);
+    results = [results spread(spread_ind)];
+    all_err = [all_err; err];
 end
 
-% finding the best structure of the net
-[min_d, spread_ind] = min(err);
-spread(spread_ind)
-figure;
-hold on;
-semilogx(spread, err); % error plot
+% finding the best mean spread and drawing a plot
+mean(results)
+mean_err = [];
+for i = 1:size(all_err,2)
+    mean_err = [mean_err mean(all_err(:,i))];
+end
+figure; % hold on is off because then the axis' scale is not logarythmic
+semilogx(spread, mean_err); % error plot
