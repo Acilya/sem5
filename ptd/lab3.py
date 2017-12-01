@@ -4,8 +4,8 @@ import csv
 import matplotlib.pyplot as pyplot
 import numpy
 
-t_max = 5
-fp = 100
+t_max = 3
+fp = 50
 SUBSTRACT = 0
 ADD = 1
 MULTIPLICATE = 2
@@ -36,7 +36,7 @@ def simple_tone(a, f, phi):
         times.append(time)
         point_val = a * math.sin(w * time + phi)
         points.append(point_val)
-    #drawPlot(times, points, "time (s)", "simple_tone", "signal")
+    #drawPlot(times, points, "time (s)", "simple_tone", "simple_signal")
     return times, points
 
 def operations(a1, a2, a3, f1, f2, f3, phi1, phi2, phi3, op_type):
@@ -89,23 +89,43 @@ def magnitude(times, samples):
     for i in numpy.arange(0.0, n/2, 1.0):
         xmag.append(math.sqrt((dft_v[int(i)][REAL])**2 + (dft_v[int(i)][IMAGINARY])**2))
         f.append(i * fp / n)
-    #drawPlot(f, xmag, "frequency", "amplitude", "magnitude")
+    drawPlot(f, xmag, "frequency", "amplitude", "magnitude")
 
 def amplitudeModulation():
     k = 0.2
     correctK = True
     signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
-    carrierTimes, carrier = simple_tone(1, 15, 0)
+    carrierTimes, carrier = simple_tone(1, 20, 0)
     am = []
     for i in range(0, len(signal)):
-        if k*signal[i] >= 1:
-            am.append(carrier[i] * (k * signal[i] + 1))
+        if abs(k*signal[i]) < 1:
+            am.append(carrier[i] * (k * signal[i] + 1))   # carrier[i] = A * cos(2*pi*fn*t)
         else:
             print "Wrong k!"
             correctK = False
             break
     if correctK:
-        drawPlot(signalTimes, am, "time (s)", "signal", "AM")
+        drawPlot(carrierTimes, am, "time (s)", "signal", "AM")
+        magnitude(carrierTimes, am)
+
+def phaseModulation():
+    k = 0.4
+    correctK = True
+    signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
+    a = 1
+    f = 20
+    phi = 0
+    carrierTimes, carrier = simple_tone(a, f, phi)
+    pm = []
+    for i in range(0, len(signal)):
+        if k * max(map(abs, signal)) >= 1:
+            pm.append(a * math.cos(2 * math.pi * f * carrierTimes[i] + k * signal[i]))
+        else:
+            print "Wrong k!"
+            correctK = False
+            break
+    if correctK:
+        drawPlot(carrierTimes, pm, "time (s)", "signal", "PM")
 
 def main():
     #xs, ys = simple_tone(1, 1, 1)
@@ -113,7 +133,7 @@ def main():
     #x = [2, 3, -4, -1]
     #dft(2, x)
     #magnitude(xs, ys)
-    amplitudeModulation()
+    phaseModulation()
 
 if __name__ == "__main__":
     main()
