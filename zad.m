@@ -34,19 +34,18 @@ for k=1:K
         title(['Face ', num2str(k), '\', num2str(l)]);
         xlabel(num2str([M,N,q]));
         ylabel('Baza ATT');
-      
         hold on;
         plot(X,Y,'*g');
         hold off;
-        %pause(.1);
+        
         % Random
         for j=1:num
             VR(j) = face(Y(j),X(j));
         end
-            subplot(322);
-            plot(VR);
-            grid;
-            title('Random');
+        subplot(322);
+        plot(VR);
+        grid;
+        title('Random');
         
         % Scale
         miniFace = imresize(face, [m n]);
@@ -55,6 +54,7 @@ for k=1:K
         plot(VS);
         grid;
         title('Scale');
+        
         % Histogram
         VH = imhist(face,BIN);
         subplot(326);
