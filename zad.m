@@ -17,8 +17,8 @@ N = 92;
 KL = K*L; % rozmiar obrazka
 BIN = 32; %
 BWR = zeros(num,K); % baza wzorcow losowych punktow
-X = fix(N-1)*rand(num,1)+1;
-Y = fix(M-1)*rand(num,1)+1;
+X = fix((N-5)*rand(1,num))+1;
+Y = fix((M-5)*rand(1,num))+1;
 
 % Rejestracja
 figure(1);
@@ -34,32 +34,33 @@ for k=1:K
         title(['Face ', num2str(k), '\', num2str(l)]);
         xlabel(num2str([M,N,q]));
         ylabel('Baza ATT');
-        hold on;
-        subplot(121);
+      
         hold on;
         plot(X,Y,'*g');
         hold off;
-        pause(.1);
+        %pause(.1);
         % Random
         for j=1:num
-            VR = face(Y(j),X(j));
+            VR(j) = face(Y(j),X(j));
+        end
             subplot(322);
             plot(VR);
             grid;
             title('Random');
-        end
+        
         % Scale
-        miniFace = inresize(face, [m n]);
+        miniFace = imresize(face, [m n]);
         VS = miniFace(:);
         subplot(324);
         plot(VS);
         grid;
         title('Scale');
         % Histogram
-        VH = inhist(face,BIN);
+        VH = imhist(face,BIN);
         subplot(326);
-        plot(VH);
+        bar(VH,'b');
         grid;
         title('Histogram');
+        pause(.1);
     end
 end
