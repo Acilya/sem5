@@ -95,7 +95,11 @@ def amplitudeModulation():
     k = 0.2
     correctK = True
     signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
-    carrierTimes, carrier = simple_tone(1, 20, 0)
+    #signalTimes, signal = xs, ys = simple_tone(1, 2, 0)
+    a = 1
+    f = 20
+    phi = 0
+    carrierTimes, carrier = simple_tone(a, f, phi)
     am = []
     for i in range(0, len(signal)):
         if abs(k*signal[i]) < 1:
@@ -107,13 +111,15 @@ def amplitudeModulation():
     if correctK:
         drawPlot(carrierTimes, am, "time (s)", "signal", "AM")
         magnitude(carrierTimes, am)
+    return carrierTimes, am, k, a, f
 
 def phaseModulation():
     k = 0.4
     correctK = True
     signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
+    #signalTimes, signal = xs, ys = simple_tone(1, 2, 0)
     a = 1
-    f = 20
+    f = 10
     phi = 0
     carrierTimes, carrier = simple_tone(a, f, phi)
     pm = []
@@ -126,6 +132,13 @@ def phaseModulation():
             break
     if correctK:
         drawPlot(carrierTimes, pm, "time (s)", "signal", "PM")
+    return carrierTimes, pm, k, a, f
+
+def demodulator(times, mod, k, a, f):
+    signal = []
+    for i in range(0, len(mod)):
+        signal.append((mod[i] - a * math.cos(2 * math.pi * f * times[i]))/k);
+    drawPlot(times, signal, "time (s)", "signal", "demodulated")
 
 def main():
     #xs, ys = simple_tone(1, 1, 1)
@@ -133,7 +146,9 @@ def main():
     #x = [2, 3, -4, -1]
     #dft(2, x)
     #magnitude(xs, ys)
-    phaseModulation()
+    #amplitudeModulation()
+    times, signal, k, a, f = phaseModulation()
+    demodulator(times, signal, k, a, f)
 
 if __name__ == "__main__":
     main()
