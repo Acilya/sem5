@@ -5,7 +5,7 @@ import matplotlib.pyplot as pyplot
 import numpy
 
 t_max = 3
-fp = 50
+fp = 200
 SUBSTRACT = 0
 ADD = 1
 MULTIPLICATE = 2
@@ -19,6 +19,7 @@ def drawPlot(x, y, xlabel, ylabel, title):
     pyplot.grid(True)
     title = title + ".png"
     pyplot.savefig(title)
+    pyplot.show()
 
 def saveAsCsv(x, y):
     with open('signals.csv', 'wb') as csv_file:
@@ -56,6 +57,9 @@ def operations(a1, a2, a3, f1, f2, f3, phi1, phi2, phi3, op_type):
         elif MULTIPLICATE == op_type:
             point_val = a1 * math.sin(w1 * time + phi1) * a2 * math.sin(w2 * time + phi2) * a3 * math.sin(w3 * time + phi3)
         sin_sum.append(point_val)
+    pyplot.figure(1)
+    pyplot.subplot(311)
+    pyplot.plot(times, sin_sum)
     #drawPlot(times, sin_sum, "time (s)", "signal", "signal")
     return times, sin_sum
 
@@ -94,7 +98,10 @@ def magnitude(times, samples):
 def amplitudeModulation():
     k = 0.2
     correctK = True
-    signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
+    a1 = 1; a2 = 2; a3 = 1
+    f1 = 2; f2 = 3; f3 = 2
+    phi = 0
+    signalTimes, signal = operations(a1, a2, a3, f1, f2, f3, phi, phi, phi, ADD)
     #signalTimes, signal = xs, ys = simple_tone(1, 2, 0)
     a = 1
     f = 20
@@ -109,17 +116,25 @@ def amplitudeModulation():
             correctK = False
             break
     if correctK:
-        drawPlot(carrierTimes, am, "time (s)", "signal", "AM")
+        pyplot.subplot(312)
+        pyplot.plot(carrierTimes, carrier)
+        pyplot.subplot(313)
+        pyplot.plot(carrierTimes, am)
+        pyplot.show()
+        #drawPlot(carrierTimes, am, "time (s)", "signal", "AM")
         magnitude(carrierTimes, am)
     return carrierTimes, am, k, a, f
 
 def phaseModulation():
     k = 0.4
     correctK = True
-    signalTimes, signal = operations(1, 2, 1, 2, 3, 2, 0, 0, 0, ADD)
+    a1 = 1; a2 = 2; a3 = 1
+    f1 = 2; f2 = 3; f3 = 2
+    phi = 0
+    signalTimes, signal = operations(a1, a2, a3, f1, f2, f3, phi, phi, phi, ADD)
     #signalTimes, signal = xs, ys = simple_tone(1, 2, 0)
     a = 1
-    f = 10
+    f = 7
     phi = 0
     carrierTimes, carrier = simple_tone(a, f, phi)
     pm = []
@@ -131,13 +146,18 @@ def phaseModulation():
             correctK = False
             break
     if correctK:
-        drawPlot(carrierTimes, pm, "time (s)", "signal", "PM")
+        pyplot.subplot(312)
+        pyplot.plot(carrierTimes, carrier)
+        pyplot.subplot(313)
+        pyplot.plot(carrierTimes, pm)
+        pyplot.show()
+        #drawPlot(carrierTimes, pm, "time (s)", "signal", "PM")
     return carrierTimes, pm, k, a, f
 
 def demodulator(times, mod, k, a, f):
     signal = []
     for i in range(0, len(mod)):
-        signal.append((mod[i] - a * math.cos(2 * math.pi * f * times[i]))/k);
+        signal.append((mod[i] - a * math.cos(2 * math.pi * f * times[i]))/k)
     drawPlot(times, signal, "time (s)", "signal", "demodulated")
 
 def main():
@@ -146,9 +166,11 @@ def main():
     #x = [2, 3, -4, -1]
     #dft(2, x)
     #magnitude(xs, ys)
-    #amplitudeModulation()
-    times, signal, k, a, f = phaseModulation()
-    demodulator(times, signal, k, a, f)
+
+    times, signal, k, a, f = amplitudeModulation()
+    #times, signal, k, a, f = phaseModulation()
+
+    #demodulator(times, signal, k, a, f)
 
 if __name__ == "__main__":
     main()
