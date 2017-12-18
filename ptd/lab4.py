@@ -1,13 +1,13 @@
 #!/usr/bin/python
 import math
-import csv
 import matplotlib.pyplot as pyplot
 import numpy
 from random import *
 
 t_max = 3
-fp = 100
-tb = 0.1
+fp = 200
+tp = 1.0 / fp
+tb = 0.2
 REAL = 0
 IMAGINARY = 1
 
@@ -35,7 +35,6 @@ def dft(spectrumElement, samples):
     return k
 
 def magnitude(times, samples):
-    global fp
     x = []
     for i in range(0, len(times)):
         x.append(samples[i])
@@ -50,41 +49,66 @@ def magnitude(times, samples):
         f.append(i * fp / n)
     drawPlot(f, xmag, "frequency", "amplitude", "magnitude")
 
-def bin_signal(n):
-    signal = [randint(0, 1) for b in range(1, n + 1)]
-    return signal
-
-def ask():
-    tp = 1.0 / fp
-    f = 10  # f powinna byc wielokrotnoscia 1/Tb (tu: 10)
-    times = []
+def bin_signal():
     signal = []
-    modulated = []
-    bits = bin_signal(int(math.floor(t_max/tb)))
+    times = []
+    n = int(math.floor(t_max/tb))
+    bits = [randint(0, 1) for b in range(1, n + 1)]
     reps = int(tb / tp)    # musi byc podzielne!
     for bit in bits:
         signal[:] += [bit] * reps
     for t in numpy.arange(0, t_max, tp):
         times.append(t)
+    return signal, times
+
+def ask(signal, times):
+    modulated = []
+    f = 10  # f powinna byc wielokrotnoscia 1/Tb (tu: 10)
     for i in range(0, len(times)):
         if signal[i] == 0:
             modulated.append(0)
         else:
-            modulated.append(math.sin(2*math.pi*f*times[i]))
-    pyplot.subplot(211)
-    pyplot.step(times, signal, where='pre')
-    pyplot.ylim(-0.5, 1.5)
-    pyplot.subplot(212)
-    pyplot.plot(times, modulated)
-    pyplot.show()
-    magnitude(times, modulated)
+            modulated.append(math.sin(2 * math.pi * f * times[i]))
+    return modulated
 
-#def fsk(signal):
+def fsk(signal, times):
+    modulated = []
+    n = 1
+    f1 = (n+1)/tb
+    f2 = (n+2)/tb
+    for i in range(0, len(times)):
+        if signal[i] == 0:
+            modulated.append(math.sin(2 * math.pi * f1 * times[i]))
+        else:
+            modulated.append(math.sin(2 * math.pi * f2 * times[i]))
+    return modulated
 
-#def psk(signal):
+def psk(signal, times):
+    modulated = []
+    f = 10
+    for i in range(0, len(times)):
+        if signal[i] == 0:
+            modulated.append(math.sin(2 * math.pi * f * times[i]))
+        else:
+            modulated.append(math.sin(2 * math.pi * f * times[i] + math.pi))
+    return modulated
 
 def main():
-    ask()
+    signal, times = bin_signal()
+    ask_sig = ask(signal, times)
+    fsk_sig = fsk(signal, times)
+    psk_sig = psk(signal, times)
+    pyplot.subplot(411)
+    pyplot.step(times, signal, where='pre')
+    pyplot.ylim(-0.5, 1.5)
+    pyplot.subplot(412)
+    pyplot.plot(times, ask_sig)
+    pyplot.subplot(413)
+    pyplot.plot(times, fsk_sig)
+    pyplot.subplot(414)
+    pyplot.plot(times, psk_sig)
+    pyplot.show()
+    #magnitude(times, modulated)
 
 if __name__ == "__main__":
     main()
